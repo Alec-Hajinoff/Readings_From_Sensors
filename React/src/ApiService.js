@@ -86,3 +86,32 @@ export const logoutUser = async () => {
     throw new Error("An error occurred during logout.");
   }
 };
+
+// pullHistory() fetches all historic readings so the dashboard table can render them.
+
+export const pullHistory = async () => {
+  try {
+    const response = await fetch(
+      "http://localhost:8001/Readings_From_Sensors/pull_history.php",
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to contact historic readings endpoint");
+    }
+
+    const payload = await response.json();
+
+    if (!payload.success) {
+      throw new Error(payload.message || "Historic readings request failed");
+    }
+
+    return payload;
+  } catch (error) {
+    console.error("Error in pullHistory:", error);
+    return { success: false, message: error.message, data: [] };
+  }
+};

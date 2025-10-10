@@ -3,27 +3,44 @@
 import React, { useEffect, useState } from "react";
 import "./PullReadings.css";
 import LogoutComponent from "./LogoutComponent";
-import { pullReadingsFunction } from "./ApiService";
+import { pullReadingsFunction, pullHistory } from "./ApiService";
 
-function CreateAgreement() {
+function PullReadings() {
   const [sensorData, setSensorData] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [historyData, setHistoryData] = useState([]);
+  const [historyError, setHistoryError] = useState("");
 
   const loadSensorData = async () => {
     try {
       setLoading(true);
-      const data = await pullReadingsFunction();
-      if (data.success && data.data) {
-        setSensorData(data.data);
+      // Fetch latest and historic readings concurrently so the UI updates together.
+      const [latestResponse, historyResponse] = await Promise.all([
+        pullReadingsFunction(),
+        pullHistory(),
+      ]);
+
+      if (latestResponse.success && latestResponse.data) {
+        setSensorData(latestResponse.data);
         setErrorMessage("");
       } else {
         setSensorData(null);
         setErrorMessage("Failed to load sensor data");
       }
+
+      if (historyResponse.success && Array.isArray(historyResponse.data)) {
+        setHistoryData(historyResponse.data); // Populate table with returned rows.
+        setHistoryError("");
+      } else {
+        setHistoryData([]);
+        setHistoryError("Failed to load historic readings"); // Let the user know the table fetch failed.
+      }
     } catch (error) {
       setSensorData(null);
       setErrorMessage(error.message || "Failed to load sensor data");
+      setHistoryData([]);
+      setHistoryError(error.message || "Failed to load historic readings");
     } finally {
       setLoading(false);
     }
@@ -70,8 +87,45 @@ function CreateAgreement() {
           </div>
         </div>
       )}
+      {!loading && (
+        <div className="mt-4">
+          <h2 className="h5">Historic Readings</h2>
+          {historyError && (
+            <div className="alert alert-warning" role="alert">
+              {historyError}
+            </div>
+          )}
+          {/* Render a table when we have historic rows, otherwise show a friendly notice. */}
+          {historyData.length > 0 ? (
+            <div className="table-responsive">
+              <table className="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">Received At</th>
+                    <th scope="col">Temperature</th>
+                    <th scope="col">Humidity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historyData.map((reading, index) => (
+                    <tr key={`${reading.received_at}-${index}`}>
+                      <td>{new Date(reading.received_at).toLocaleString()}</td>
+                      <td>{reading.temperature}</td>
+                      <td>{reading.humidity}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="text-muted">
+              Historic readings will appear here once available.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-export default CreateAgreement;
+export default PullReadings;
