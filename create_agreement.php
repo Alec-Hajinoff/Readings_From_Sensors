@@ -25,6 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit;
 }
 
+$userId = (int) $_SESSION['id'];
+
 $servername = "127.0.0.1";
 $username = "root";
 $passwordServer = "";
@@ -67,10 +69,12 @@ $message = $data['result'];
 $sensorData = $message['uplink_message']['decoded_payload'];
 
 try {
-    $sql = "INSERT INTO agreements (humidity, temperature, received_at) VALUES (:humidity, :temperature, NOW())";
+    $sql = "INSERT INTO readings (user_id, humidity, temperature, received_at) VALUES (:user_id, :humidity, :temperature, NOW())"; // Include user_id column in the insert
     $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT); // Bind the authenticated user ID to the query
     $stmt->bindParam(':humidity', $sensorData['humidity']);
     $stmt->bindParam(':temperature', $sensorData['temperature']);
+
     $stmt->execute();
 
     header('Content-Type: application/json');

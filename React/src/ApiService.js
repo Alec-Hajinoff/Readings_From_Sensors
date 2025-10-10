@@ -44,24 +44,27 @@ export const loginUser = async (formData) => {
   }
 };
 
-// createAgreementFunction() is the API call to send to the backend the agreement text + the file submitted by the user.
+// createAgreementFunction() is the API call to fetch the sensor readings from the backend.
 
-export const createAgreementFunction = async (formData) => {
+export const createAgreementFunction = async () => {
   try {
     const response = await fetch(
-      "http://localhost:8001/Sustainability_Log_Development/create_agreement.php",
+      "http://localhost:8001/Readings_From_Sensors/create_agreement.php",
       {
-        method: "POST",
-        body: formData,
+        method: "GET",
         credentials: "include",
       }
     );
+
+    if (!response.ok) {
+      throw new Error("Request failed");
+    }
 
     const data = await response.json();
     return data;
   } catch (error) {
     console.error("Error in createAgreementFunction:", error);
-    throw new Error(`Failed to create agreement: ${error.message}`);
+    throw new Error(`Failed to fetch agreement: ${error.message}`);
   }
 };
 
