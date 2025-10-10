@@ -55,16 +55,7 @@ function PullReadings() {
       <div className="d-flex justify-content-end mb-3">
         <LogoutComponent />
       </div>
-      <h1 className="mb-4">Latest Sensor Reading</h1>
-      <div className="mb-3">
-        <button
-          className="btn btn-primary"
-          onClick={loadSensorData}
-          disabled={loading}
-        >
-          Refresh
-        </button>
-      </div>
+      <h2 className="h5">Latest Sensor Reading:</h2>
       {loading && <p>Loading sensor data...</p>}
       {!loading && errorMessage && (
         <div className="alert alert-danger" role="alert">
@@ -87,9 +78,21 @@ function PullReadings() {
           </div>
         </div>
       )}
+      <br></br>
+
+      <div className="mb-3">
+        <button
+          className="btn btn-primary"
+          onClick={loadSensorData}
+          disabled={loading}
+        >
+          Refresh
+        </button>
+      </div>
+
       {!loading && (
         <div className="mt-4">
-          <h2 className="h5">Historic Readings</h2>
+          <h2 className="h5">Historic Readings:</h2>
           {historyError && (
             <div className="alert alert-warning" role="alert">
               {historyError}
