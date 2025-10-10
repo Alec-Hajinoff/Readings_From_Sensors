@@ -6,7 +6,7 @@ import Header from "./Header";
 import MainRegLog from "./MainRegLog";
 import Footer from "./Footer";
 import RegisteredPage from "./RegisteredPage";
-import CreateAgreement from "./CreateAgreement";
+import PullReadings from "./PullReadings";
 import LogoutComponent from "./LogoutComponent";
 
 function App() {
@@ -17,7 +17,7 @@ function App() {
         <Routes>
           <Route path="/" element={<MainRegLog />} />
           <Route path="RegisteredPage" element={<RegisteredPage />} />
-          <Route path="CreateAgreement" element={<CreateAgreement />} />
+          <Route path="PullReadings" element={<PullReadings />} />
           <Route path="LogoutComponent" component={LogoutComponent} />
         </Routes>
         <Footer />

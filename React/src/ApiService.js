@@ -44,12 +44,12 @@ export const loginUser = async (formData) => {
   }
 };
 
-// createAgreementFunction() is the API call to fetch the sensor readings from the backend.
+// pullReadingsFunction() is the API call to fetch the sensor readings from the backend.
 
-export const createAgreementFunction = async () => {
+export const pullReadingsFunction = async () => {
   try {
     const response = await fetch(
-      "http://localhost:8001/Readings_From_Sensors/create_agreement.php",
+      "http://localhost:8001/Readings_From_Sensors/pull_readings.php",
       {
         method: "GET",
         credentials: "include",
@@ -63,7 +63,7 @@ export const createAgreementFunction = async () => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error in createAgreementFunction:", error);
+    console.error("Error in pullReadingsFunction:", error);
     throw new Error(`Failed to fetch agreement: ${error.message}`);
   }
 };

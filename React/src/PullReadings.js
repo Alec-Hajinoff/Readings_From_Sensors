@@ -1,9 +1,9 @@
 // This file runs the user dashboard displaying sensor readings.
 
 import React, { useEffect, useState } from "react";
-import "./CreateAgreement.css";
+import "./PullReadings.css";
 import LogoutComponent from "./LogoutComponent";
-import { createAgreementFunction } from "./ApiService";
+import { pullReadingsFunction } from "./ApiService";
 
 function CreateAgreement() {
   const [sensorData, setSensorData] = useState(null);
@@ -13,7 +13,7 @@ function CreateAgreement() {
   const loadSensorData = async () => {
     try {
       setLoading(true);
-      const data = await createAgreementFunction();
+      const data = await pullReadingsFunction();
       if (data.success && data.data) {
         setSensorData(data.data);
         setErrorMessage("");
