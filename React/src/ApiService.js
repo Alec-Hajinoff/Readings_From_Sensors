@@ -71,7 +71,7 @@ export const createAgreementFunction = async () => {
 export const logoutUser = async () => {
   try {
     const response = await fetch(
-      "http://localhost:8001/Climate_Bind_Development/logout_component.php",
+      "http://localhost:8001/Readings_From_Sensors/logout_component.php",
       {
         method: "POST",
         credentials: "include",
@@ -84,50 +84,5 @@ export const logoutUser = async () => {
   } catch (error) {
     console.error("Error during logout:", error);
     throw new Error("An error occurred during logout.");
-  }
-};
-
-// agreementHashFunction() checks a company's name in the database, as the user types it, and when there is a match fetches company data.
-
-export const agreementHashFunction = async (searchTerm) => {
-  try {
-    const response = await fetch(
-      "http://localhost:8001/Sustainability_Log_Development/agreement_hash.php",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ searchTerm }),
-      }
-    );
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    throw new Error("Failed to search for agreements");
-  }
-};
-
-// userDashboard() fetches data from the database to populate the company-user dashboard in CreateAgreement.js.
-
-export const userDashboard = async () => {
-  try {
-    const response = await fetch(
-      "http://localhost:8001/Sustainability_Log_Development/user_dashboard.php",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      }
-    );
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    throw new Error("Failed to fetch dashboard data");
   }
 };
