@@ -5,27 +5,18 @@ function Main() {
   return (
     <div>
       <p>
-        Sustainability Log is a web application that helps small ethical
-        companies create a self verifiable, timestamped, and easily shareable
-        digital record of their sustainability journey.
+        Readings From Sensors is an IoT web application that collects near
+        real-time data - such as temperature, humidity, and vibration - from
+        remote assets, including construction equipment and office buildings.
+        The application presents this information on a browser-based dashboard,
+        allowing users to monitor and analyse their assets from anywhere.
       </p>
 
       <p>
-        The aim is not to rate companies but to empower them to build trust
-        through transparency, focusing on the timeline of progress.
-      </p>
-
-      <p>
-        The application allows a company to enter data that is related to its
-        sustainability efforts, the application logs this data to the blockchain
-        by emitting events and provides a publicly accessible timeline of
-        sustainability logs over time, demonstrating the company's efforts on
-        the sustainability journey.
-      </p>
-
-      <p>
-        The value is the ability for the company to demonstrate in a verifiable
-        way its sustainability journey to its customers, suppliers, investors.
+        The platform is built with a React frontend, PHP backend, and MySQL
+        database, and leverages the LoRaWAN protocol in the EU868 MHz band for
+        reliable device-to-network communication. Data from connected sensors is
+        managed via The Things Network IoT network server.
       </p>
     </div>
   );
