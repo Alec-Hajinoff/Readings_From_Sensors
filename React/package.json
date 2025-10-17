@@ -1,5 +1,5 @@
 {
-  "name": "sustainability-log-development",
+  "name": "readings-from-sensors",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -10,6 +10,7 @@
     "mutationobserver-shim": "^0.3.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-gauge-chart": "^0.5.1",
     "react-router-dom": "^6.10.0",
     "react-scripts": "^3.0.1",
     "web-vitals": "^4.2.4"
