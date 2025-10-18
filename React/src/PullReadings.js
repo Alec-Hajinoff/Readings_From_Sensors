@@ -98,8 +98,7 @@ function PullReadings() {
               {historyError}
             </div>
           )}
-          // Render a table when we have historic rows, otherwise show a
-          friendly notice.
+          {/* Render a table when we have historic rows, otherwise show a friendly notice. */}
           {historyData.length > 0 ? (
             <div className="table-responsive">
               <table className="table table-striped">
