@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import "./PullReadings.css";
+import Thermometer from "./Thermometer.js";
+import HumidityGauge from "./HumidityGauge.js";
 import LogoutComponent from "./LogoutComponent";
 import { pullReadingsFunction, pullHistory } from "./ApiService";
 
@@ -55,7 +57,7 @@ function PullReadings() {
       <div className="d-flex justify-content-end mb-3">
         <LogoutComponent />
       </div>
-      <h2 className="h5">Latest Sensor Reading:</h2>
+      <h2 className="h5">Latest Sensor Readings:</h2>
       {loading && <p>Loading sensor data...</p>}
       {!loading && errorMessage && (
         <div className="alert alert-danger" role="alert">
@@ -65,13 +67,22 @@ function PullReadings() {
       {!loading && sensorData && (
         <div className="card">
           <div className="card-body">
+            <div>
+              <Thermometer temperature={sensorData.temperature} />
+            </div>
             <p className="card-text">
+              <br></br>
               <strong>Temperature:</strong> {sensorData.temperature}
             </p>
+            <div>
+              <HumidityGauge humidity={sensorData.humidity} />
+            </div>
             <p className="card-text">
+              <br></br>
               <strong>Humidity:</strong> {sensorData.humidity}
             </p>
             <p className="card-text">
+              <br></br>
               <strong>Received At:</strong>{" "}
               {new Date(sensorData.inserted_at).toLocaleString()}
             </p>
