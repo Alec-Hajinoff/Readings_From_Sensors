@@ -27,6 +27,8 @@
   // AMP lockdown
   "amp.inlineSuggestions.enabled": false,
   "amp.autoInsert.enabled": false,
+  "amp.codeActions.enabled": false,
+  "amp.applyEdits.enabled": false,
 
   // Global editor lockdown
   "editor.inlineSuggest.enabled": false,
