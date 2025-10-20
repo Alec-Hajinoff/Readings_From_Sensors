@@ -1,12 +1,15 @@
 import { render, screen } from "@testing-library/react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { createMemoryHistory } from "react-router-dom";
-import App from "../App";
+import { MemoryRouter } from "react-router-dom";
+import AppRoutes from "../AppRoutes";
 import React from "react";
 
 describe("App Component", () => {
   test("renders Header component", () => {
-    render(<App />);
+    render(
+      <MemoryRouter>
+        <AppRoutes />
+      </MemoryRouter>
+    );
 
     const logo = screen.getByAltText(/A company logo/i);
     expect(logo).toBeInTheDocument();
@@ -14,48 +17,53 @@ describe("App Component", () => {
     expect(logo).toHaveAttribute("title", "A company logo");
   });
 
-  test("renders Footer and MainRegLog components", () => {
-    render(<App />);
-    expect(screen.getByText(/Footer/i)).toBeInTheDocument();
-    expect(screen.getByText(/MainRegLog/i)).toBeInTheDocument();
+  test("renders MainRegLog component", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <AppRoutes />
+      </MemoryRouter>
+    );
+    expect(screen.getByText(/Please register:/i)).toBeInTheDocument();
   });
 
-  test("renders RegisteredPage component when on /RegisteredPage path", () => {
-    const history = createMemoryHistory();
-    history.push("/RegisteredPage");
-
+  test("renders Footer component", () => {
     render(
-      <Router history={history}>
-        <App />
-      </Router>
+      <MemoryRouter initialEntries={["/"]}>
+        <AppRoutes />
+      </MemoryRouter>
+    );
+    expect(
+      screen.getByText(/team@readingsfromsensors.com/i)
+    ).toBeInTheDocument();
+  });
+
+  test("renders RegisteredPage component", () => {
+    render(
+      <MemoryRouter initialEntries={["/RegisteredPage"]}>
+        <AppRoutes />
+      </MemoryRouter>
     );
 
-    expect(screen.getByText(/RegisteredPage/i)).toBeInTheDocument();
+    expect(screen.getByText(/Thank you for registering!/i)).toBeInTheDocument();
   });
 
   test("renders PullReadings component when on /PullReadings path", () => {
-    const history = createMemoryHistory();
-    history.push("/PullReadings");
-
     render(
-      <Router history={history}>
-        <App />
-      </Router>
+      <MemoryRouter initialEntries={["/PullReadings"]}>
+        <AppRoutes />
+      </MemoryRouter>
     );
 
-    expect(screen.getByText(/PullReadings/i)).toBeInTheDocument();
+    expect(screen.getByText(/Latest Sensor Readings:/i)).toBeInTheDocument();
   });
 
   test("renders LogoutComponent component when on /LogoutComponent path", () => {
-    const history = createMemoryHistory();
-    history.push("/LogoutComponent");
-
     render(
-      <Router history={history}>
-        <App />
-      </Router>
+      <MemoryRouter initialEntries={["/LogoutComponent"]}>
+        <AppRoutes />
+      </MemoryRouter>
     );
 
-    expect(screen.getByText(/LogoutComponent/i)).toBeInTheDocument();
+    expect(screen.getByText(/Logout/i)).toBeInTheDocument();
   });
 });

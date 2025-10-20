@@ -1,22 +1,20 @@
+import { Routes, Route } from "react-router-dom";
+import MainRegLog from "./MainRegLog";
+import RegisteredPage from "./RegisteredPage";
+import PullReadings from "./PullReadings";
+import LogoutComponent from "./LogoutComponent";
 import React from "react";
-import { BrowserRouter as Router } from "react-router-dom";
-import Header from "./Header";
-import Footer from "./Footer";
-import AppRoutes from "./AppRoutes";
 
-function App() {
+export default function AppRoutes() {
   return (
-    <div>
-      <Router>
-        <Header />
-        <AppRoutes />
-        <Footer />
-      </Router>
-    </div>
+    <Routes>
+      <Route path="/" element={<MainRegLog />} />
+      <Route path="RegisteredPage" element={<RegisteredPage />} />
+      <Route path="PullReadings" element={<PullReadings />} />
+      <Route path="LogoutComponent" element={<LogoutComponent />} />
+    </Routes>
   );
 }
-
-export default App;
 
 /*
 //import logo from './logo.svg';
