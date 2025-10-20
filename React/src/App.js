@@ -18,7 +18,7 @@ function App() {
           <Route path="/" element={<MainRegLog />} />
           <Route path="RegisteredPage" element={<RegisteredPage />} />
           <Route path="PullReadings" element={<PullReadings />} />
-          <Route path="LogoutComponent" component={LogoutComponent} />
+          <Route path="LogoutComponent" element={<LogoutComponent />} />
         </Routes>
         <Footer />
       </Router>

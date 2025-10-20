@@ -1,38 +1,30 @@
 import {
   registerUser,
   loginUser,
-  createAgreementFunction,
+  pullReadingsFunction,
   logoutUser,
-  agreementHashFunction,
-  userDashboard,
+  pullHistory,
 } from "../ApiService";
 
-// Mock global fetch
 global.fetch = jest.fn();
 
-describe("ApiService", () => {
-  beforeEach(() => {
-    fetch.mockClear();
-  });
+beforeEach(() => {
+  fetch.mockClear();
+});
 
+describe("API functions", () => {
   describe("registerUser", () => {
-    it("successfully registers a user", async () => {
-      const mockResponse = {
-        ok: true,
-        json: () => Promise.resolve({ success: true, message: "User registered" }),
-      };
-      fetch.mockResolvedValueOnce(mockResponse);
+    it("should successfully register a user", async () => {
+      const mockResponse = { success: true, message: "User registered" };
+      fetch.mockResolvedValueOnce({
+        json: () => Promise.resolve(mockResponse),
+      });
 
-      const formData = {
-        username: "testuser",
-        email: "test@example.com",
-        password: "password123",
-      };
-
+      const formData = { username: "test", password: "test123" };
       const result = await registerUser(formData);
 
       expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:8001/Sustainability_Log_Development/form_capture.php",
+        "http://localhost:8001/Readings_From_Sensors/form_capture.php",
         {
           method: "POST",
           headers: {
@@ -42,40 +34,31 @@ describe("ApiService", () => {
           credentials: "include",
         }
       );
-      expect(result).toEqual({ success: true, message: "User registered" });
+      expect(result).toEqual(mockResponse);
     });
 
-    it("handles registration error", async () => {
-      const error = new Error("Network error");
-      fetch.mockRejectedValueOnce(error);
+    it("should handle registration errors", async () => {
+      fetch.mockRejectedValueOnce(new Error("Network error"));
 
-      const formData = {
-        username: "testuser",
-        email: "test@example.com",
-        password: "password123",
-      };
-
-      await expect(registerUser(formData)).rejects.toThrow("An error occurred.");
+      const formData = { username: "test", password: "test123" };
+      await expect(registerUser(formData)).rejects.toThrow(
+        "An error occurred."
+      );
     });
   });
 
   describe("loginUser", () => {
-    it("successfully logs in a user", async () => {
-      const mockResponse = {
-        ok: true,
-        json: () => Promise.resolve({ success: true, message: "Login successful" }),
-      };
-      fetch.mockResolvedValueOnce(mockResponse);
+    it("should successfully login a user", async () => {
+      const mockResponse = { success: true, message: "Login successful" };
+      fetch.mockResolvedValueOnce({
+        json: () => Promise.resolve(mockResponse),
+      });
 
-      const formData = {
-        username: "testuser",
-        password: "password123",
-      };
-
+      const formData = { username: "test", password: "test123" };
       const result = await loginUser(formData);
 
       expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:8001/Sustainability_Log_Development/login_capture.php",
+        "http://localhost:8001/Readings_From_Sensors/login_capture.php",
         {
           method: "POST",
           headers: {
@@ -85,153 +68,127 @@ describe("ApiService", () => {
           body: JSON.stringify(formData),
         }
       );
-      expect(result).toEqual({ success: true, message: "Login successful" });
+      expect(result).toEqual(mockResponse);
     });
 
-    it("handles login error", async () => {
-      const error = new Error("Network error");
-      fetch.mockRejectedValueOnce(error);
+    it("should handle login errors", async () => {
+      fetch.mockRejectedValueOnce(new Error("Network error"));
 
-      const formData = {
-        username: "testuser",
-        password: "password123",
-      };
-
+      const formData = { username: "test", password: "test123" };
       await expect(loginUser(formData)).rejects.toThrow("An error occurred.");
     });
   });
 
-  describe("createAgreementFunction", () => {
-    it("successfully creates an agreement", async () => {
-      const mockResponse = {
+  describe("pullReadingsFunction", () => {
+    it("should successfully fetch sensor readings", async () => {
+      const mockData = { readings: [] };
+      fetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ success: true, message: "Agreement created" }),
-      };
-      fetch.mockResolvedValueOnce(mockResponse);
+        json: () => Promise.resolve(mockData),
+      });
 
-      const formData = new FormData();
-      formData.append("agreementText", "Test agreement");
-      formData.append("file", new File(["test"], "test.pdf"));
-
-      const result = await createAgreementFunction(formData);
+      const result = await pullReadingsFunction();
 
       expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:8001/Sustainability_Log_Development/create_agreement.php",
+        "http://localhost:8001/Readings_From_Sensors/pull_readings.php",
         {
-          method: "POST",
-          body: formData,
+          method: "GET",
           credentials: "include",
         }
       );
-      expect(result).toEqual({ success: true, message: "Agreement created" });
+      expect(result).toEqual(mockData);
     });
 
-    it("handles agreement creation error", async () => {
-      const error = new Error("Network error");
-      fetch.mockRejectedValueOnce(error);
+    it("should handle failed requests", async () => {
+      fetch.mockResolvedValueOnce({ ok: false });
 
-      const formData = new FormData();
-      formData.append("agreementText", "Test agreement");
+      await expect(pullReadingsFunction()).rejects.toThrow("Request failed");
+    });
 
-      await expect(createAgreementFunction(formData)).rejects.toThrow(
-        "Failed to create agreement: Network error"
+    it("should handle network errors", async () => {
+      fetch.mockRejectedValueOnce(new Error("Network error"));
+
+      await expect(pullReadingsFunction()).rejects.toThrow(
+        "Failed to fetch agreement: Network error"
       );
     });
   });
 
   describe("logoutUser", () => {
-  it("successfully logs out a user", async () => {
-    const mockResponse = {
-      ok: true,
-    };
-    fetch.mockResolvedValueOnce(mockResponse);
+    it("should successfully logout a user", async () => {
+      fetch.mockResolvedValueOnce({ ok: true });
 
-    await logoutUser();
-
-    expect(fetch).toHaveBeenCalledWith(
-      "http://localhost:8001/Climate_Bind_Development/logout_component.php",
-      {
-        method: "POST",
-        credentials: "include",
-      }
-    );
-  });
-
-  it("handles logout error", async () => {
-    const mockResponse = {
-      ok: false,
-    };
-    fetch.mockResolvedValueOnce(mockResponse);
-
-    await expect(logoutUser()).rejects.toThrow("An error occurred during logout.");
-  });
-});
-
-  describe("agreementHashFunction", () => {
-    it("successfully searches for agreements", async () => {
-      const mockResponse = {
-        ok: true,
-        json: () => Promise.resolve({ success: true, agreements: [] }),
-      };
-      fetch.mockResolvedValueOnce(mockResponse);
-
-      const searchTerm = "Test Company";
-      const result = await agreementHashFunction(searchTerm);
+      await logoutUser();
 
       expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:8001/Sustainability_Log_Development/agreement_hash.php",
+        "http://localhost:8001/Readings_From_Sensors/logout_component.php",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ searchTerm }),
-        }
-      );
-      expect(result).toEqual({ success: true, agreements: [] });
-    });
-
-    it("handles search error", async () => {
-      const error = new Error("Network error");
-      fetch.mockRejectedValueOnce(error);
-
-      await expect(agreementHashFunction("test")).rejects.toThrow(
-        "Failed to search for agreements"
-      );
-    });
-  });
-
-  describe("userDashboard", () => {
-    it("successfully fetches dashboard data", async () => {
-      const mockResponse = {
-        ok: true,
-        json: () => Promise.resolve({ success: true, data: [] }),
-      };
-      fetch.mockResolvedValueOnce(mockResponse);
-
-      const result = await userDashboard();
-
-      expect(fetch).toHaveBeenCalledWith(
-        "http://localhost:8001/Sustainability_Log_Development/user_dashboard.php",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
           credentials: "include",
         }
       );
-      expect(result).toEqual({ success: true, data: [] });
     });
 
-    it("handles dashboard fetch error", async () => {
-      const error = new Error("Network error");
-      fetch.mockRejectedValueOnce(error);
+    it("should handle logout failures", async () => {
+      fetch.mockResolvedValueOnce({ ok: false });
 
-      await expect(userDashboard()).rejects.toThrow(
-        "Failed to fetch dashboard data"
+      await expect(logoutUser()).rejects.toThrow("An error occurred during logout.");
+    });
+  });
+
+  describe("pullHistory", () => {
+    it("should successfully fetch history", async () => {
+      const mockPayload = {
+        success: true,
+        message: "History fetched successfully",
+        data: [],
+      };
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockPayload),
+      });
+
+      const result = await pullHistory();
+
+      expect(fetch).toHaveBeenCalledWith(
+        "http://localhost:8001/Readings_From_Sensors/pull_history.php",
+        {
+          method: "GET",
+          credentials: "include",
+        }
       );
+      expect(result).toEqual(mockPayload);
+    });
+
+    it("should handle failed history requests", async () => {
+      const mockPayload = {
+        success: false,
+        message: "Error fetching history",
+      };
+      fetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockPayload),
+      });
+
+      const result = await pullHistory();
+
+      expect(result).toEqual({
+        success: false,
+        message: "Error fetching history",
+        data: [],
+      });
+    });
+
+    it("should handle network errors", async () => {
+      fetch.mockRejectedValueOnce(new Error("Network error"));
+
+      const result = await pullHistory();
+
+      expect(result).toEqual({
+        success: false,
+        message: "Network error",
+        data: [],
+      });
     });
   });
 });
