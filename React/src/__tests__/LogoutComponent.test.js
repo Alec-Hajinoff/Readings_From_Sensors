@@ -1,53 +1,54 @@
-import "mutationobserver-shim";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import LogoutComponent from "../LogoutComponent";
+import { logoutUser } from "../ApiService";
+import { useNavigate } from "react-router-dom";
 
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    ok: true,
-  })
-);
+jest.mock("../ApiService", () => ({
+  logoutUser: jest.fn(),
+}));
+
+const mockNavigate = jest.fn();
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => mockNavigate,
+}));
 
 describe("LogoutComponent", () => {
-  it("should navigate to the home page on successful logout", async () => {
-    render(
-      <MemoryRouter initialEntries={["./LogoutComponent"]}>
-        <LogoutComponent />
-      </MemoryRouter>
-    );
-
-    const logoutButton = screen.getByText(/logout/i);
-    fireEvent.click(logoutButton);
-
-    await screen.findByText(/logout/i);
-
-    expect(window.location.pathname).toBe("/");
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it("should log an error if logout fails", async () => {
-    global.fetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: false,
-      })
-    );
+  it("renders the logout button", () => {
+    render(<LogoutComponent />);
+    expect(screen.getByRole("button", { name: /logout/i })).toBeInTheDocument();
+  });
 
-    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
+  it("calls logoutUser and navigates to '/' on successful logout", async () => {
+    logoutUser.mockResolvedValueOnce();
 
-    render(
-      <MemoryRouter initialEntries={["./LogoutComponent"]}>
-        <LogoutComponent />
-      </MemoryRouter>
-    );
+    render(<LogoutComponent />);
+    fireEvent.click(screen.getByRole("button", { name: /logout/i }));
 
-    const logoutButton = screen.getByText(/logout/i);
-    fireEvent.click(logoutButton);
+    await waitFor(() => {
+      expect(logoutUser).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith("/");
+    });
+  });
 
-    await screen.findByText(/logout/i);
+  it("logs error message on logout failure", async () => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    logoutUser.mockRejectedValueOnce(new Error("Logout failed"));
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith("An error occurred during logout.");
+    render(<LogoutComponent />);
+    fireEvent.click(screen.getByRole("button", { name: /logout/i }));
 
-    consoleErrorSpy.mockRestore();
+    await waitFor(() => {
+      expect(logoutUser).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith("Logout failed");
+    });
+
+    consoleSpy.mockRestore();
   });
 });

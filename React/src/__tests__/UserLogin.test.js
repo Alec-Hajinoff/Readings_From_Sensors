@@ -64,7 +64,7 @@ describe("UserLogin", () => {
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(global.fetch).toHaveBeenCalledWith(
-      "http://localhost:8001/Sustainability_Log_Development/login_capture.php",
+      "http://localhost:8001/Readings_From_Sensors/login_capture.php",
       {
         method: "POST",
         headers: {
@@ -78,7 +78,7 @@ describe("UserLogin", () => {
       }
     );
 
-    expect(navigateMock).toHaveBeenCalledWith("/CreateAgreement");
+    expect(navigateMock).toHaveBeenCalledWith("/PullReadings");
   });
 
   it("displays an error message when login fails", async () => {
