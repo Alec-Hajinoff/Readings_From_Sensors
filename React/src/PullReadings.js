@@ -6,6 +6,7 @@ import Thermometer from "./Thermometer.js";
 import HumidityGauge from "./HumidityGauge.js";
 import LogoutComponent from "./LogoutComponent";
 import { pullReadingsFunction, pullHistory } from "./ApiService";
+import HistoricGraph from "./HistoricGraph";
 
 function PullReadings() {
   const [sensorData, setSensorData] = useState(null);
@@ -57,6 +58,7 @@ function PullReadings() {
       <div className="d-flex justify-content-end mb-3">
         <LogoutComponent />
       </div>
+
       <h2 className="h5">Latest Sensor Readings:</h2>
       {loading && <p>Loading sensor data...</p>}
       {!loading && errorMessage && (
@@ -100,6 +102,9 @@ function PullReadings() {
           Refresh
         </button>
       </div>
+
+      {/* A graph showing historic readings trend */}
+      {!loading && <HistoricGraph historyData={historyData} />}
 
       {!loading && (
         <div className="mt-4">
