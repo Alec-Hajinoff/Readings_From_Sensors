@@ -61,23 +61,37 @@ describe("PullReadings component", () => {
     });
   });
 
-  it("displays sensor data and history table on success", async () => {
+  it("displays sensor data, history table, and historic graph on success", async () => {
     pullReadingsFunction.mockResolvedValue({
       success: true,
       data: mockSensorData,
     });
     pullHistory.mockResolvedValue({ success: true, data: mockHistoryData });
 
-    render(<PullReadings />);
+    const { container } = render(<PullReadings />);
 
     await waitFor(() => {
       expect(screen.getByTestId("thermometer")).toBeInTheDocument();
       expect(screen.getByTestId("humidity-gauge")).toBeInTheDocument();
     });
 
+    // Sensor values
     expect(screen.getByText("22.5")).toBeInTheDocument();
     expect(screen.getByText("55")).toBeInTheDocument();
+
+    // History table
     expect(screen.getByRole("table")).toBeInTheDocument();
+
+    // HistoricGraph header
+    expect(screen.getByText("24h Trends")).toBeInTheDocument();
+    expect(screen.getByText("Showing last 24 hours")).toBeInTheDocument();
+
+    // Chart titles
+    expect(screen.getByText("Temperature (°C)")).toBeInTheDocument();
+    expect(screen.getByText("Humidity (%)")).toBeInTheDocument();
+
+    // SVG charts
+    expect(container.querySelectorAll("svg").length).toBe(2);
   });
 
   it("shows error messages when API calls fail", async () => {
