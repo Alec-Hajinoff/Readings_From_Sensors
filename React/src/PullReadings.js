@@ -68,27 +68,41 @@ function PullReadings() {
         </div>
       )}
       {!loading && sensorData && (
-        <div className="card">
+        <div className="card mb-4">
           <div className="card-body">
-            <div>
-              <Thermometer temperature={sensorData.temperature} />
+            <div className="row g-4">
+              {/* LEFT COLUMN - Sensor Readings */}
+              <div className="col-lg-6">
+                <h5 className="card-title text-center mb-4">
+                  Current Readings
+                </h5>
+
+                <div className="text-center mb-4">
+                  <Thermometer temperature={sensorData.temperature} />
+                  <p className="mt-3">
+                    <strong>Temperature:</strong> {sensorData.temperature}°C
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <HumidityGauge humidity={sensorData.humidity} />
+                  <p className="mt-3">
+                    <strong>Humidity:</strong> {sensorData.humidity}%
+                  </p>
+                </div>
+
+                <p className="text-muted text-center mt-4 small">
+                  <strong>Received:</strong>{" "}
+                  {new Date(sensorData.inserted_at).toLocaleString()}
+                </p>
+              </div>
+
+              {/* RIGHT COLUMN - Email Alerts */}
+              <div className="col-lg-6">
+                <h5 className="card-title mb-4">Alert Settings</h5>
+                <EmailAlerts />
+              </div>
             </div>
-            <p className="card-text">
-              <br></br>
-              <strong>Temperature:</strong> {sensorData.temperature}
-            </p>
-            <div>
-              <HumidityGauge humidity={sensorData.humidity} />
-            </div>
-            <p className="card-text">
-              <br></br>
-              <strong>Humidity:</strong> {sensorData.humidity}
-            </p>
-            <p className="card-text">
-              <br></br>
-              <strong>Received At:</strong>{" "}
-              {new Date(sensorData.inserted_at).toLocaleString()}
-            </p>
           </div>
         </div>
       )}
@@ -105,9 +119,6 @@ function PullReadings() {
       </div>
 
       <br></br>
-
-      {/* Email Alerts Component */}
-      <EmailAlerts />
 
       {/* A graph showing historic readings trend */}
       {!loading && <HistoricGraph historyData={historyData} />}
