@@ -6,6 +6,12 @@ import {
   pullHistory,
 } from "../ApiService";
 
+import {
+  setAlertThresholds,
+  getAlertThresholds,
+  deleteAlertThresholds,
+} from "../ApiService";
+
 global.fetch = jest.fn();
 
 beforeEach(() => {
@@ -132,7 +138,9 @@ describe("API functions", () => {
     it("should handle logout failures", async () => {
       fetch.mockResolvedValueOnce({ ok: false });
 
-      await expect(logoutUser()).rejects.toThrow("An error occurred during logout.");
+      await expect(logoutUser()).rejects.toThrow(
+        "An error occurred during logout."
+      );
     });
   });
 
@@ -188,6 +196,138 @@ describe("API functions", () => {
         success: false,
         message: "Network error",
         data: [],
+      });
+    });
+  });
+
+  describe("Alert threshold API functions", () => {
+    describe("setAlertThresholds", () => {
+      it("should successfully set alert thresholds", async () => {
+        const mockResponse = { success: true, message: "Thresholds saved" };
+        fetch.mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        });
+
+        const thresholdData = {
+          maxTemp: "30",
+          minTemp: "5",
+          maxHumidity: "80",
+          minHumidity: "20",
+        };
+
+        const result = await setAlertThresholds(thresholdData);
+
+        expect(fetch).toHaveBeenCalledWith(
+          "http://localhost:8001/Readings_From_Sensors/set_alerts.php",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify(thresholdData),
+          }
+        );
+        expect(result).toEqual(mockResponse);
+      });
+
+      it("should handle setAlertThresholds failure", async () => {
+        fetch.mockResolvedValueOnce({ ok: false });
+
+        await expect(setAlertThresholds({ maxTemp: "30" })).rejects.toThrow(
+          "Failed to set alert thresholds"
+        );
+      });
+
+      it("should handle network error during setAlertThresholds", async () => {
+        fetch.mockRejectedValueOnce(new Error("Network error"));
+
+        await expect(setAlertThresholds({ maxTemp: "30" })).rejects.toThrow(
+          "Failed to set alert thresholds"
+        );
+      });
+    });
+
+    describe("getAlertThresholds", () => {
+      it("should successfully fetch alert thresholds", async () => {
+        const mockData = {
+          success: true,
+          data: {
+            maxTemp: "30",
+            minTemp: "5",
+            maxHumidity: "80",
+            minHumidity: "20",
+          },
+        };
+        fetch.mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockData),
+        });
+
+        const result = await getAlertThresholds();
+
+        expect(fetch).toHaveBeenCalledWith(
+          "http://localhost:8001/Readings_From_Sensors/get_alerts.php",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+        expect(result).toEqual(mockData);
+      });
+
+      it("should handle getAlertThresholds failure", async () => {
+        fetch.mockResolvedValueOnce({ ok: false });
+
+        await expect(getAlertThresholds()).rejects.toThrow(
+          "Failed to fetch alert thresholds"
+        );
+      });
+
+      it("should handle network error during getAlertThresholds", async () => {
+        fetch.mockRejectedValueOnce(new Error("Network error"));
+
+        await expect(getAlertThresholds()).rejects.toThrow(
+          "Failed to fetch alert thresholds"
+        );
+      });
+    });
+
+    describe("deleteAlertThresholds", () => {
+      it("should successfully delete alert thresholds", async () => {
+        const mockResponse = { success: true, message: "Thresholds deleted" };
+        fetch.mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        });
+
+        const result = await deleteAlertThresholds();
+
+        expect(fetch).toHaveBeenCalledWith(
+          "http://localhost:8001/Readings_From_Sensors/delete_alerts.php",
+          {
+            method: "DELETE",
+            credentials: "include",
+          }
+        );
+        expect(result).toEqual(mockResponse);
+      });
+
+      it("should handle deleteAlertThresholds failure", async () => {
+        fetch.mockResolvedValueOnce({ ok: false });
+
+        await expect(deleteAlertThresholds()).rejects.toThrow(
+          "Failed to delete alert thresholds"
+        );
+      });
+
+      it("should handle network error during deleteAlertThresholds", async () => {
+        fetch.mockRejectedValueOnce(new Error("Network error"));
+
+        await expect(deleteAlertThresholds()).rejects.toThrow(
+          "Failed to delete alert thresholds"
+        );
       });
     });
   });

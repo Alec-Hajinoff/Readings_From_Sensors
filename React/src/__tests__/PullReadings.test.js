@@ -13,6 +13,14 @@ jest.mock("../HumidityGauge", () => ({ humidity }) => (
 jest.mock("../LogoutComponent", () => () => (
   <button data-testid="logout-button">Logout</button>
 ));
+jest.mock("../EmailAlerts", () => () => (
+  <div data-testid="email-alerts">EmailAlerts</div>
+));
+jest.mock("../HistoricGraph", () => ({ historyData }) => (
+  <div data-testid="historic-graph">
+    HistoricGraph with {historyData.length} points
+  </div>
+));
 
 // Mock API functions
 jest.mock("../ApiService", () => ({
@@ -61,40 +69,58 @@ describe("PullReadings component", () => {
     });
   });
 
-  it("displays sensor data, history table, and historic graph on success", async () => {
+  it("displays sensor data, history table, and graph on success", async () => {
     pullReadingsFunction.mockResolvedValue({
       success: true,
       data: mockSensorData,
     });
     pullHistory.mockResolvedValue({ success: true, data: mockHistoryData });
 
-    const { container } = render(<PullReadings />);
+    render(<PullReadings />);
 
     await waitFor(() => {
       expect(screen.getByTestId("thermometer")).toBeInTheDocument();
       expect(screen.getByTestId("humidity-gauge")).toBeInTheDocument();
+      expect(screen.getByTestId("email-alerts")).toBeInTheDocument();
+      expect(screen.getByTestId("historic-graph")).toHaveTextContent(
+        "2 points"
+      );
     });
 
-    // Sensor values
-    expect(screen.getByText("22.5")).toBeInTheDocument();
-    expect(screen.getByText("55")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (content, element) =>
+          element.tagName.toLowerCase() === "p" && content.includes("22.5")
+      )
+    ).toBeInTheDocument();
 
-    // History table
+    expect(
+      screen.getByText(
+        (content, element) =>
+          element.tagName.toLowerCase() === "p" && content.includes("55")
+      )
+    ).toBeInTheDocument();
+
     expect(screen.getByRole("table")).toBeInTheDocument();
-
-    // HistoricGraph header
-    expect(screen.getByText("24h Trends")).toBeInTheDocument();
-    expect(screen.getByText("Showing last 24 hours")).toBeInTheDocument();
-
-    // Chart titles
-    expect(screen.getByText("Temperature (°C)")).toBeInTheDocument();
-    expect(screen.getByText("Humidity (%)")).toBeInTheDocument();
-
-    // SVG charts
-    expect(container.querySelectorAll("svg").length).toBe(2);
   });
 
-  it("shows error messages when API calls fail", async () => {
+  it("shows fallback message when history data is empty", async () => {
+    pullReadingsFunction.mockResolvedValue({
+      success: true,
+      data: mockSensorData,
+    });
+    pullHistory.mockResolvedValue({ success: true, data: [] });
+
+    render(<PullReadings />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Historic readings will appear here/i)
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("shows error messages when both API calls fail", async () => {
     pullReadingsFunction.mockResolvedValue({ success: false });
     pullHistory.mockResolvedValue({ success: false });
 
@@ -107,6 +133,39 @@ describe("PullReadings component", () => {
     });
   });
 
+  it("handles partial failure: sensor success, history failure", async () => {
+    pullReadingsFunction.mockResolvedValue({
+      success: true,
+      data: mockSensorData,
+    });
+    pullHistory.mockResolvedValue({ success: false });
+
+    render(<PullReadings />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("thermometer")).toBeInTheDocument();
+      expect(screen.getByTestId("humidity-gauge")).toBeInTheDocument();
+      expect(
+        screen.getByText("Failed to load historic readings")
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("disables Refresh button while loading", async () => {
+    let resolveFetch;
+    pullReadingsFunction.mockImplementation(
+      () => new Promise((resolve) => (resolveFetch = resolve))
+    );
+    pullHistory.mockResolvedValue({ success: true, data: mockHistoryData });
+
+    render(<PullReadings />);
+    const refreshButton = screen.getByRole("button", { name: /Refresh/i });
+    expect(refreshButton).toBeDisabled();
+
+    resolveFetch({ success: true, data: mockSensorData });
+    await waitFor(() => expect(refreshButton).not.toBeDisabled());
+  });
+
   it("refreshes data when Refresh button is clicked", async () => {
     pullReadingsFunction.mockResolvedValue({
       success: true,
@@ -115,9 +174,10 @@ describe("PullReadings component", () => {
     pullHistory.mockResolvedValue({ success: true, data: mockHistoryData });
 
     render(<PullReadings />);
-    await waitFor(() => screen.getByText(/Refresh/i));
+    await waitFor(() => screen.getByRole("button", { name: /Refresh/i }));
 
-    fireEvent.click(screen.getByText(/Refresh/i));
+    fireEvent.click(screen.getByRole("button", { name: /Refresh/i }));
+
     await waitFor(() => {
       expect(pullReadingsFunction).toHaveBeenCalledTimes(2);
       expect(pullHistory).toHaveBeenCalledTimes(2);
