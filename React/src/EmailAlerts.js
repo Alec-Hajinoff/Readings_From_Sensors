@@ -33,7 +33,7 @@ const EmailAlerts = () => {
         });
       }
     } catch (error) {
-      setMessage({ text: "Failed to load existing alerts", type: "error" });
+      setMessage({ text: "There are no existing alerts", type: "error" });
     }
   };
 
